@@ -5,6 +5,12 @@ class DatabaseTestScreen extends StatefulWidget {
   _DatabaseTestScreenState createState() => _DatabaseTestScreenState();
 }
 class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
+
+  final _latitudeGeofenceController = TextEditingController();
+  final _longitudeGeofenceController = TextEditingController();
+  final _radiusGeofenceController = TextEditingController();
+  final _labelGeofenceController = TextEditingController();
+
   final _latitudeController = TextEditingController();
   final _longitudeController = TextEditingController();
   final _accuracyController = TextEditingController();
@@ -31,6 +37,47 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
     super.dispose();
   }
 
+  List<Map<String, dynamic>> _geofences = [];
+
+  Future<void> _addGeofence() async {
+    // اطلاعات محدوده جغرافیایی جدید
+    final geofence = {
+      'latitude': double.tryParse(_latitudeGeofenceController.text),
+      'longitude': double.tryParse(_longitudeGeofenceController.text),
+      'radius': double.tryParse(_radiusGeofenceController.text), // شعاع محدوده جغرافیایی (مثال)
+      'label': _labelGeofenceController.text,
+    };
+    final result = await _dbHelper.insertGeofence(geofence);
+    if (result>0) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("محدوده جغرافیایی اضافه شد."),
+      ));
+      _getGeofences();
+    }
+  }
+
+  Future<void> _getGeofences() async {
+    final geofences = await _dbHelper.getAllGeofences();
+    setState(() {
+      _geofences = geofences;
+    });
+  }
+
+  Future<void> _deleteGeofence(int id) async {
+    await _dbHelper.deleteGeofence(id);
+    _getGeofences();
+  }
+
+  Future<void> _updateGeofence(int id) async {
+    final updatedGeofence = {
+      'latitude': double.tryParse(_latitudeGeofenceController.text),
+      'longitude': double.tryParse(_longitudeGeofenceController.text),
+      'radius': double.tryParse(_radiusGeofenceController.text), // شعاع جدید محدوده جغرافیایی
+      'label': _labelGeofenceController.text,
+    };
+    await _dbHelper.editGeofence(id, updatedGeofence);
+    _getGeofences();
+  }
   Future<void> _addLocation() async {
     final latitude = double.tryParse(_latitudeController.text);
     final longitude = double.tryParse(_longitudeController.text);
@@ -144,11 +191,64 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
       appBar: AppBar(
         title: Text('Database Test Screen'),
       ),
-      body: Padding(
+      body:
+
+      Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
             children: [
+              Text('add Geofence'),
+              TextField(
+                controller: _latitudeGeofenceController,
+                decoration: InputDecoration(labelText: 'Latitude'),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: _longitudeGeofenceController,
+                decoration: InputDecoration(labelText: 'Longitude'),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: _radiusGeofenceController,
+                decoration: InputDecoration(labelText: 'radius'),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: _labelGeofenceController,
+                decoration: InputDecoration(labelText: 'label'),
+                keyboardType: TextInputType.text,
+              ),
+              ElevatedButton(
+                onPressed: _addGeofence,
+                child: Text('اضافه کردن محدوده جغرافیایی'),
+              ),
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: _geofences.length,
+                itemBuilder: (context, index) {
+                  final geofence = _geofences[index];
+                  return ListTile(
+                    title: Text('Latitude: ${geofence['latitude']}, Longitude: ${geofence['longitude']}'),
+                    subtitle: Text('radius: ${geofence['radius']} - label: ${geofence['label']}'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () => _updateGeofence(geofence['id']),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () => _deleteGeofence(geofence['id']),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: 20,),
+              Text('add Location'),
               TextField(
                 controller: _latitudeController,
                 decoration: InputDecoration(labelText: 'Latitude'),

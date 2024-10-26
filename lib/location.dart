@@ -215,6 +215,8 @@ Future<Database> _initDatabase() async {
 
   Future<List<Map<String, dynamic>>> getAllGeofences() async {
     final db = await database;
-    return await db.query('geofences');
+    return await db.query('geofences',
+      orderBy: 'id DESC',
+    );
   }
 }
