@@ -11,6 +11,7 @@ class DatabaseHelper {
    intervalBase=interval;
    minDistanceBase=minDistance;
     return _instance;
+
   }
   DatabaseHelper._internal();
   Future<Database> get database async {
@@ -60,7 +61,6 @@ Future<Database> _initDatabase() async {
   Future<bool> insertLocation(Map<String, dynamic> location) async {
     final db = await database;
 
-    // دریافت آخرین لوکیشن
     List<Map<String, dynamic>> lastLocations = await db.query(
       'locations',
       orderBy: 'timestamp DESC',
@@ -70,15 +70,15 @@ Future<Database> _initDatabase() async {
     if (lastLocations.isNotEmpty) {
       Map<String, dynamic> lastLocation = lastLocations.first;
 
-      // محاسبه زمان و فاصله
       DateTime lastTimestamp = DateTime.parse(lastLocation['timestamp']);
       DateTime currentTimestamp = DateTime.now();
       double timeDifference = currentTimestamp.difference(lastTimestamp).inSeconds.toDouble();
       double distance = _calculateDistance(lastLocation['latitude'], lastLocation['longitude'], location['latitude'], location['longitude']);
 
-      // بررسی شرایط
-      if (timeDifference < intervalBase! || distance < minDistanceBase!) {
-        return false; // شرایط برای ذخیره‌سازی لوکیشن جدید فراهم نیست
+      if (timeDifference < intervalBase!
+
+           || distance < minDistanceBase!) {
+        return false;
       }
     }
 
@@ -109,7 +109,6 @@ Future<Database> _initDatabase() async {
   Future<int?> _checkGeofence(Map<String, dynamic> location) async {
     final db = await database;
 
-    // دریافت geofences
     List<Map<String, dynamic>> geofences = await db.query('geofences');
 
     for (var geofence in geofences) {
@@ -121,10 +120,10 @@ Future<Database> _initDatabase() async {
       );
 
       if (distance <= geofence['radius']) {
-        return geofence['id']; // لوکیشن در شعاع geofence است
+        return geofence['id'];
       }
     }
-    return null; // لوکیشن در هیچ geofence‌ای نیست
+    return null;
   }
 
   Future<List<Map<String, dynamic>>> getLastLocations(int n) async {
@@ -188,5 +187,34 @@ Future<Database> _initDatabase() async {
     final db = await database;
     await db.delete('locations');
     await db.delete('geofences');
+  }
+
+  Future<int> insertGeofence(Map<String, dynamic> geofence) async {
+    final db = await database;
+    return await db.insert('geofences', geofence);
+  }
+
+  Future<int> editGeofence(int id, Map<String, dynamic> updatedGeofence) async {
+    final db = await database;
+    return await db.update(
+      'geofences',
+      updatedGeofence,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> deleteGeofence(int id) async {
+    final db = await database;
+    return await db.delete(
+      'geofences',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getAllGeofences() async {
+    final db = await database;
+    return await db.query('geofences');
   }
 }

@@ -4,7 +4,6 @@ class DatabaseTestScreen extends StatefulWidget {
   @override
   _DatabaseTestScreenState createState() => _DatabaseTestScreenState();
 }
-
 class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
   final _latitudeController = TextEditingController();
   final _longitudeController = TextEditingController();
@@ -19,7 +18,6 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
  bool type_off=false;
   final DatabaseHelper _dbHelper = DatabaseHelper(interval: 10, minDistance: 10);
 
-  // برای انتخاب نوع فعالیت
   String _selectedActivityType = 'walking';
   final List<String> _activityTypes = ['walking', 'running', 'driving', 'off'];
 
@@ -80,7 +78,7 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
       'longitude': longitude,
       'accuracy': accuracy,
       'speed': speed,
-      'activity_type': _selectedActivityType, // استفاده از نوع انتخاب شده
+      'activity_type': _selectedActivityType,
       'battery_level': batteryLevel,
       'fake_location_detected': _fakeLocationDetected,
     };
@@ -151,7 +149,6 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // بخش ورود داده‌ها
               TextField(
                 controller: _latitudeController,
                 decoration: InputDecoration(labelText: 'Latitude'),
@@ -172,7 +169,6 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
                 decoration: InputDecoration(labelText: 'Speed'),
                 keyboardType: TextInputType.number,
               ),
-              // بخش انتخاب نوع فعالیت
               DropdownButton<String>(
                 value: _selectedActivityType,
                 onChanged: (String? newValue) {

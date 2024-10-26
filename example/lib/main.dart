@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:locations/location.dart';
 import 'package:locations_example/DatabaseTestScreen.dart';
-
 void main() {
   runApp(MyApp());
 }
