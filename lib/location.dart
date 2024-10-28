@@ -7,11 +7,13 @@ class DatabaseHelper {
   static Database? _database;
   static double? intervalBase;
   static double? minDistanceBase;
-  factory DatabaseHelper({required double interval, required double minDistance}) {
+  static int? minStopTime;
+
+  factory DatabaseHelper({required double interval, required double minDistance,required int stopTime }) {
    intervalBase=interval;
    minDistanceBase=minDistance;
-    return _instance;
-
+   minStopTime = stopTime;
+   return _instance;
   }
   DatabaseHelper._internal();
   Future<Database> get database async {
@@ -43,7 +45,8 @@ Future<Database> _initDatabase() async {
         battery_level INTEGER,
         geofence_id INTEGER,
         isSync BOOLEAN,
-        fake_location_detected BOOLEAN DEFAULT 0
+        fake_location_detected BOOLEAN DEFAULT 0,
+        stop_time INTEGER DEFAULT 0
       );
     ''');
 
@@ -57,8 +60,7 @@ Future<Database> _initDatabase() async {
       );
     ''');
   }
-
-  Future<bool> insertLocation(Map<String, dynamic> location) async {
+  Future<int> insertLocation(Map<String, dynamic> location) async {
     final db = await database;
 
     List<Map<String, dynamic>> lastLocations = await db.query(
@@ -73,7 +75,61 @@ Future<Database> _initDatabase() async {
       DateTime lastTimestamp = DateTime.parse(lastLocation['timestamp']);
       DateTime currentTimestamp = DateTime.now();
       double timeDifference = currentTimestamp.difference(lastTimestamp).inSeconds.toDouble();
-      double distance = _calculateDistance(lastLocation['latitude'], lastLocation['longitude'], location['latitude'], location['longitude']);
+      double distance = calculateDistance(lastLocation['latitude'], lastLocation['longitude'], location['latitude'], location['longitude']);
+
+      // چک کردن فاصله و زمان
+      if (timeDifference < intervalBase! || distance < minDistanceBase!) {
+        // محاسبه زمان توقف
+        int stopTime = calculateStopTime(distance, timeDifference);
+        // به‌روزرسانی زمان و وضعیت
+        await db.update(
+          'locations',
+          {
+            'timestamp': currentTimestamp.toIso8601String(),
+            'isSync': false,
+            'stop_time': stopTime
+          },
+          where: 'id = ?',
+          whereArgs: [lastLocation['id']],
+        );
+        return 2; // به جای اضافه کردن یک مکان جدید، مکان قبلی به‌روزرسانی شد
+      }
+    }
+
+    // درج مکان جدید
+    int? geofenceId = await _checkGeofence(location);
+    await db.insert('locations', {
+      ...location,
+      'geofence_id': geofenceId,
+      'isSync': false,
+      'stop_time': 0 // زمان توقف برای مکان جدید صفر است
+    });
+    return 1;
+  }
+
+  int calculateStopTime(double distance, double timeDifference) {
+    // محاسبه زمان توقف فقط در صورتی که فاصله کمتر از حداقل فاصله و زمان بیشتر از حداقل زمان باشد
+    if (distance < minDistanceBase! && timeDifference > minStopTime!) {
+      return timeDifference.toInt();
+    }
+    return 0;
+  }
+ /* Future<bool> insertLocation(Map<String, dynamic> location) async        {
+    final db = await database;
+
+    List<Map<String, dynamic>> lastLocations = await db.query(
+      'locations',
+      orderBy: 'timestamp DESC',
+      limit: 1,
+    );
+
+    if (lastLocations.isNotEmpty) {
+      Map<String, dynamic> lastLocation = lastLocations.first;
+
+      DateTime lastTimestamp = DateTime.parse(lastLocation['timestamp']);
+      DateTime currentTimestamp = DateTime.now();
+      double timeDifference = currentTimestamp.difference(lastTimestamp).inSeconds.toDouble();
+      double distance = calculateDistance(lastLocation['latitude'], lastLocation['longitude'], location['latitude'], location['longitude']);
 
       if (timeDifference < intervalBase!
 
@@ -89,10 +145,10 @@ Future<Database> _initDatabase() async {
       'isSync': false,
     });
     return true;
-  }
+  }*/
 
 
-  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     const double R = 6371e3;
     double phi1 = lat1 * (3.14159265359 / 180);
     double phi2 = lat2 * (3.14159265359 / 180);
@@ -112,7 +168,7 @@ Future<Database> _initDatabase() async {
     List<Map<String, dynamic>> geofences = await db.query('geofences');
 
     for (var geofence in geofences) {
-      double distance = _calculateDistance(
+      double distance = calculateDistance(
         location['latitude'],
         location['longitude'],
         geofence['latitude'],

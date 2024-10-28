@@ -6,6 +6,12 @@ class DatabaseTestScreen extends StatefulWidget {
 }
 class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
 
+
+  void initState() {
+    super.initState();
+    _getGeofences();
+    _getLocations();
+  }
   final _latitudeGeofenceController = TextEditingController();
   final _longitudeGeofenceController = TextEditingController();
   final _radiusGeofenceController = TextEditingController();
@@ -22,7 +28,7 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
   List<Map<String, dynamic>> _offLocations = [];
   int _unsyncedCount = 0;
  bool type_off=false;
-  final DatabaseHelper _dbHelper = DatabaseHelper(interval: 10, minDistance: 10);
+  final DatabaseHelper _dbHelper = DatabaseHelper(interval: 10, minDistance: 10,stopTime: 20);
 
   String _selectedActivityType = 'walking';
   final List<String> _activityTypes = ['walking', 'running', 'driving', 'off'];
@@ -72,7 +78,7 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
     final updatedGeofence = {
       'latitude': double.tryParse(_latitudeGeofenceController.text),
       'longitude': double.tryParse(_longitudeGeofenceController.text),
-      'radius': double.tryParse(_radiusGeofenceController.text), // شعاع جدید محدوده جغرافیایی
+      'radius': double.tryParse(_radiusGeofenceController.text),
       'label': _labelGeofenceController.text,
     };
     await _dbHelper.editGeofence(id, updatedGeofence);
@@ -128,21 +134,26 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
       'activity_type': _selectedActivityType,
       'battery_level': batteryLevel,
       'fake_location_detected': _fakeLocationDetected,
+      'timestamp': DateTime.now().toIso8601String(),
+      'stop_time': 0,
     };
 
-    final result = await _dbHelper.insertLocation(location);
-    if (result) {
+    int result = await _dbHelper.insertLocation(location);
+    if (result==1) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("لوکیشن با موفقیت اضافه شد."),
       ));
       _getLocations();
-    } else {
+    } else if(result==2) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("رکورد بروزرسانی شد"),
+      ));
+    }else{
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("خطا در اضافه کردن لوکیشن به دیتابیس."),
       ));
     }
   }
-
 
   Future<void> _getLocations() async {
     final locations = await _dbHelper.getLastLocations(10);
@@ -192,7 +203,6 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
         title: Text('Database Test Screen'),
       ),
       body:
-
       Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -375,7 +385,8 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
                                 title: Text(
                                     'Latitude: ${location['latitude']}, Longitude: ${location['longitude']}'),
                                 subtitle: Text(
-                                    'Accuracy: ${location['accuracy']}, Speed: ${location['speed']}, Activity: ${location['activity_type']}, Battery: ${location['battery_level']}, Fake Detected: ${location['fake_location_detected']}'),
+                                    'Accuracy: ${location['accuracy']}, Speed: ${location['speed']}, Activity: ${location['activity_type']}, Battery: ${location['battery_level']}'
+                                        ', Fake Detected: ${location['fake_location_detected']}'', time&date: ${location['timestamp']}, stop_time: ${location['stop_time']}'),
                               );
                             },
                           ),
@@ -398,7 +409,12 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
                             title: Text(
                                 'Latitude: ${location['latitude']}, Longitude: ${location['longitude']}'),
                             subtitle: Text(
-                                'Accuracy: ${location['accuracy']}, Speed: ${location['speed']}, Activity: ${location['activity_type']}, Battery: ${location['battery_level']}, Fake Detected: ${location['fake_location_detected']}'),
+                                'Accuracy: ${location['accuracy']}, '
+                                    'Speed: ${location['speed']},'
+                                    ' Activity: ${location['activity_type']},'
+                                    ' Battery: ${location['battery_level']}'
+                                    ', Fake Detected: ${location['fake_location_detected']}'
+                                    ', Fake Detected: ${location['fake_location_detected']}'),
                           );
                         },
                       ),
