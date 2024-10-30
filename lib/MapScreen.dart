@@ -26,6 +26,7 @@ class _MapScreenState extends State<MapScreen> {
   DateTime? _endTime;
   List<Map<String, dynamic>> _allLocations = [];
 
+
   @override
   void initState() {
     super.initState();
