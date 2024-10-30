@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:locations/location.dart';
+import 'package:locations/DatabaseHelper.dart';
 class DatabaseTestScreen extends StatefulWidget {
   @override
   _DatabaseTestScreenState createState() => _DatabaseTestScreenState();
@@ -23,6 +23,7 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
   final _speedController = TextEditingController();
   final _batteryLevelController = TextEditingController();
   bool _fakeLocationDetected = false;
+  final TextEditingController _idsController = TextEditingController(); // کنترلر برای تکستفیلد
 
   List<Map<String, dynamic>> _locations = [];
   List<Map<String, dynamic>> _offLocations = [];
@@ -156,7 +157,7 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
   }
 
   Future<void> _getLocations() async {
-    final locations = await _dbHelper.getLastLocations(10);
+    final locations = await _dbHelper.getAllLocations();
     setState(() {
       _locations = locations;
       type_off=false;
@@ -195,7 +196,30 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
       content: Text("دیتابیس پاک شد"),
     ));
   }
+  Future<void> setSyncedLocations(List<int> ids) async {
 
+    await _dbHelper.setSyncedLocations(ids);
+
+  }
+
+  void _syncLocations() {
+    String inputText = _idsController.text;
+    List<int> ids = inputText.split(',').map((id) => int.tryParse(id.trim())!).toList();
+
+    setSyncedLocations(ids).then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('بروزرسانی شد')),
+
+      );
+      _idsController.clear(); // پاک کردن تکستفیلد پس از موفقیت
+      _getLocations();
+
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('خطا: $error')),
+      );
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -314,6 +338,22 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
                 ],
               ),
               SizedBox(height: 20),
+
+
+
+              TextField(
+                controller: _idsController,
+                decoration: InputDecoration(
+
+                    labelText: 'Enter IDs (comma separated)'
+                ),
+                keyboardType: TextInputType.text,
+              ),
+              ElevatedButton(
+                onPressed: _syncLocations,
+                child: Text('true کزدن مقادیر isSync'),
+              ),
+
               Row(
                 children: [
                   Expanded(
@@ -349,6 +389,7 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
                   ),
                 ],
               ),
+
               SizedBox(height: 20),
               Row(
                 children: [
@@ -383,10 +424,10 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
                               final location = _locations[index];
                               return ListTile(
                                 title: Text(
-                                    'Latitude: ${location['latitude']}, Longitude: ${location['longitude']}'),
+                                    'id: ${location['id']},Latitude: ${location['latitude']}, Longitude: ${location['longitude']}'),
                                 subtitle: Text(
                                     'Accuracy: ${location['accuracy']}, Speed: ${location['speed']}, Activity: ${location['activity_type']}, Battery: ${location['battery_level']}'
-                                        ', Fake Detected: ${location['fake_location_detected']}'', time&date: ${location['timestamp']}, stop_time: ${location['stop_time']}'),
+                                        ', Fake Detected: ${location['fake_location_detected']}'', time&date: ${location['timestamp']}, stop_time: ${location['stop_time']}, is_sync: ${location['isSync']==0?'false':'true'}'),
                               );
                             },
                           ),

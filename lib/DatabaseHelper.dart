@@ -23,7 +23,7 @@ class DatabaseHelper {
   }
 
 
-Future<Database> _initDatabase() async {
+  Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(),'my_database.db');
     return await openDatabase(
       path,
@@ -60,17 +60,24 @@ Future<Database> _initDatabase() async {
       );
     ''');
   }
+
+
   Future<int> insertLocation(Map<String, dynamic> location) async {
     final db = await database;
 
+    // دریافت آخرین نقطه ثبت شده
     List<Map<String, dynamic>> lastLocations = await db.query(
       'locations',
       orderBy: 'timestamp DESC',
       limit: 1,
     );
-
+    Map<String, dynamic>? lastGeofence,newGeofence;
     if (lastLocations.isNotEmpty) {
       Map<String, dynamic> lastLocation = lastLocations.first;
+
+      // بررسی اینکه آیا آخرین نقطه در یک geofence قرار دارد
+     lastGeofence = await _checkGeofence(lastLocation);
+     newGeofence = await _checkGeofence(location);
 
       DateTime lastTimestamp = DateTime.parse(lastLocation['timestamp']);
       DateTime currentTimestamp = DateTime.now();
@@ -79,31 +86,62 @@ Future<Database> _initDatabase() async {
 
       // چک کردن فاصله و زمان
       if (timeDifference < intervalBase! || distance < minDistanceBase!) {
-        // محاسبه زمان توقف
         int stopTime = calculateStopTime(distance, timeDifference);
-        // به‌روزرسانی زمان و وضعیت
-        await db.update(
-          'locations',
-          {
-            'timestamp': currentTimestamp.toIso8601String(),
-            'isSync': false,
-            'stop_time': stopTime
-          },
-          where: 'id = ?',
-          whereArgs: [lastLocation['id']],
-        );
-        return 2; // به جای اضافه کردن یک مکان جدید، مکان قبلی به‌روزرسانی شد
+
+          await db.update(
+            'locations',
+            {
+              'timestamp': currentTimestamp.toIso8601String(),
+              'isSync': false,
+              'stop_time': stopTime,
+            },
+            where: 'id = ?',
+            whereArgs: [lastLocation['id']],
+          );
+          return 2;
       }
+    else if (lastGeofence != null && lastGeofence['id'] == newGeofence?['id'])
+    {
+        int previousStopTime = lastLocation['stop_time'] ?? 0;
+        int stopTime = previousStopTime + timeDifference.toInt();
+        await db.update(
+        'locations',
+        {
+        'timestamp': currentTimestamp.toIso8601String(),
+        'isSync': false,
+        'stop_time': stopTime,
+         'latitude':lastGeofence['latitude'],
+         'longitude':lastGeofence['longitude']
+        },
+        where: 'id = ?',
+        whereArgs: [lastLocation['id']],
+        );
+        return 2;
+    }
     }
 
-    // درج مکان جدید
-    int? geofenceId = await _checkGeofence(location);
-    await db.insert('locations', {
-      ...location,
-      'geofence_id': geofenceId,
-      'isSync': false,
-      'stop_time': 0 // زمان توقف برای مکان جدید صفر است
-    });
+    // درج مکان جدید اگر نقطه قبلی در geofence نبود
+    Map<String, dynamic>?   geofence = await  _checkGeofence(location);
+    if(geofence==null){
+      int? geofenceId=geofence?['id'];
+      await db.insert('locations', {
+        ...location,
+        'geofence_id': geofenceId,
+        'isSync': true,
+        'stop_time': 0,
+      });
+    }else{
+      int? geofenceId=geofence?['id'];
+      await db.insert('locations', {
+        ...location,
+        'geofence_id': geofenceId,
+        'isSync': false,
+        'stop_time': 0,
+        'latitude':geofence['latitude'],
+        'longitude':geofence['longitude']
+      });
+    }
+
     return 1;
   }
 
@@ -114,40 +152,6 @@ Future<Database> _initDatabase() async {
     }
     return 0;
   }
- /* Future<bool> insertLocation(Map<String, dynamic> location) async        {
-    final db = await database;
-
-    List<Map<String, dynamic>> lastLocations = await db.query(
-      'locations',
-      orderBy: 'timestamp DESC',
-      limit: 1,
-    );
-
-    if (lastLocations.isNotEmpty) {
-      Map<String, dynamic> lastLocation = lastLocations.first;
-
-      DateTime lastTimestamp = DateTime.parse(lastLocation['timestamp']);
-      DateTime currentTimestamp = DateTime.now();
-      double timeDifference = currentTimestamp.difference(lastTimestamp).inSeconds.toDouble();
-      double distance = calculateDistance(lastLocation['latitude'], lastLocation['longitude'], location['latitude'], location['longitude']);
-
-      if (timeDifference < intervalBase!
-
-           || distance < minDistanceBase!) {
-        return false;
-      }
-    }
-
-    int? geofenceId = await _checkGeofence(location);
-    await db.insert('locations', {
-      ...location,
-      'geofence_id': geofenceId,
-      'isSync': false,
-    });
-    return true;
-  }*/
-
-
   double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     const double R = 6371e3;
     double phi1 = lat1 * (3.14159265359 / 180);
@@ -162,11 +166,9 @@ Future<Database> _initDatabase() async {
     return R * c;
   }
 
-  Future<int?> _checkGeofence(Map<String, dynamic> location) async {
+  Future<Map<String, dynamic>?> _checkGeofence(Map<String, dynamic> location) async {
     final db = await database;
-
     List<Map<String, dynamic>> geofences = await db.query('geofences');
-
     for (var geofence in geofences) {
       double distance = calculateDistance(
         location['latitude'],
@@ -176,7 +178,7 @@ Future<Database> _initDatabase() async {
       );
 
       if (distance <= geofence['radius']) {
-        return geofence['id'];
+        return geofence;
       }
     }
     return null;
@@ -187,9 +189,19 @@ Future<Database> _initDatabase() async {
     return await db.query(
       'locations',
       where: 'isSync = ?',
-      whereArgs: [false],
+      whereArgs: [true],
       orderBy: 'timestamp DESC',
       limit: n,
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getAllLocations() async {
+    final db = await database;
+    return await db.query(
+      'locations'
+        /*,
+      where: 'isSync = ?',
+      whereArgs: [true]*/
     );
   }
 
