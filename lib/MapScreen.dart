@@ -15,12 +15,13 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
+  LatLng initialPosition = LatLng(35.6892, 51.3890);
 
   List<Marker> _locationMarkers = [];
   List<CircleMarker> _geofenceCircles = [];
-  List<Marker> _geofenceStopMarkers = []; // دکمه استاپ برای هر Geofence
+  List<Marker> _geofenceStopMarkers = [];
   List<LatLng> _polylinePoints = [];
-  final TextEditingController _idsController = TextEditingController(); // کنترلر برای تکستفیلد
+  final TextEditingController _idsController = TextEditingController();
 
   DateTime? _startTime;
   DateTime? _endTime;
@@ -39,6 +40,9 @@ class _MapScreenState extends State<MapScreen> {
     List<Map<String, dynamic>> geofences = await dbHelper.getAllGeofences();
     List<Map<String, dynamic>> locations = await dbHelper.getAllLocations();
     setState(() {
+      if (locations.isNotEmpty) {
+        initialPosition = LatLng(locations.first['latitude'], locations.first['longitude']);
+      }
       _allLocations = locations;
       _geofenceCircles = geofences.map((geofence) {
         bool hasPointInside = locations.any((location) {
@@ -278,10 +282,8 @@ class _MapScreenState extends State<MapScreen> {
 
       body: FlutterMap(
         options: MapOptions(
-          center: _allLocations.isNotEmpty
-              ? LatLng(_allLocations[0]['latitude'], _allLocations[0]['longitude'])
-              : LatLng(35.6892, 51.3890),
-          zoom: 16,
+          center: initialPosition,
+          zoom: 13,
           onTap: (tapPosition, point) {
             final textToCopy = 'lat: ${point.latitude}, lon: ${point
                 .longitude}';
@@ -365,34 +367,6 @@ class _MapScreenState extends State<MapScreen> {
     DateTime? entryTime;
     DateTime? exitTime;
 
-
-
-// یافتن اولین زمان خروج که بعد از زمان ورود باشد
- /*   for (var stopPoint in stopPointsOutOfGeofence) {
-      DateTime exitCandidateTime = DateTime.parse(stopPoint['timestamp']);
-      if (entryTime != null && exitCandidateTime.isAfter(entryTime)) {
-        exitTime = exitCandidateTime; // زمان خروج
-        break;
-      }
-    }*/
-
-/*// تنظیم مجموع زمان توقف بین زمان ورود و خروج
-    if (entryTime != null && exitTime != null) {
-      int adjustedTotalStopTime = 0;
-      for (var stopPoint in stopPointsInGeofence) {
-        DateTime timestamp = DateTime.parse(stopPoint['timestamp']);
-        int stopTime = (stopPoint['stop_time'] as num? ?? 0).toInt();
-
-        // فقط زمان‌های توقف داخل بازه معتبر را جمع می‌کنیم
-        if (timestamp.isAfter(entryTime) && timestamp.isBefore(exitTime)) {
-          adjustedTotalStopTime += stopTime;
-        }
-      }
-      totalStopTime = adjustedTotalStopTime;
-    }*/
-
-
-
     for (var stopPoint in stopPointsInGeofence) {
       totalStopTime += (stopPoint['stop_time'] as num? ?? 0).toInt();
       if (entryTime == null) {
@@ -400,31 +374,14 @@ class _MapScreenState extends State<MapScreen> {
       }
     }
 
-
-
     for (var stopPoint in stopPointsOutOfGeofence) {
       DateTime exitCandidateTime = DateTime.parse(stopPoint['timestamp']);
       if (entryTime != null && exitCandidateTime.isAfter(entryTime!)) {
-        exitTime = exitCandidateTime; // زمان خروج اولین نقطه‌ای که از زمان ورود بزرگتر است
+        exitTime = exitCandidateTime;
         break;
       }
     }
 
-    // یافتن زمان ورود و محاسبه زمان‌های توقف درون geofence
-/*    for (var stopPoint in stopPointsInGeofence) {
-      int stopTime = (stopPoint['stop_time'] as num? ?? 0).toInt();
-      DateTime timestamp = DateTime.parse(stopPoint['timestamp']);
-
-      if (entryTime == null) {
-        entryTime = timestamp; // زمان ورود
-      }
-
-      totalStopTime += stopTime;
-    }*/
-
-
-
-    // تبدیل زمان به فرمت 00:00:00
     final int hours = totalStopTime ~/ 3600;
     final int minutes = (totalStopTime % 3600) ~/ 60;
     final int seconds = totalStopTime % 60;
@@ -432,7 +389,6 @@ class _MapScreenState extends State<MapScreen> {
     final formattedTime = '${hours.toString().padLeft(2, '0')}:${minutes
         .toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 
-    // نمایش نقاط توقف در Bottom Sheet
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -481,8 +437,6 @@ class _MapScreenState extends State<MapScreen> {
         );
       },
     );
-
   }
-
 }
 

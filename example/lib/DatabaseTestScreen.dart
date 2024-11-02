@@ -211,7 +211,7 @@ class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
         SnackBar(content: Text('بروزرسانی شد')),
 
       );
-      _idsController.clear(); // پاک کردن تکستفیلد پس از موفقیت
+      _idsController.clear();
       _getLocations();
 
     }).catchError((error) {
