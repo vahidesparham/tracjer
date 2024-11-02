@@ -87,6 +87,7 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
 
             Expanded(
               child: _TimePickerField(
+
                 controller: fromTimeController,
                 labelText: 'ساعت',
                 onTimePicked: (pickedTime) {
@@ -119,6 +120,7 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
                 labelText: 'ساعت',
                 onTimePicked: (pickedTime) {
                   toTime = pickedTime;
+                  String time=_formatTimeOfDay(pickedTime);
                   toTimeController.text = _formatTimeOfDay(pickedTime);
                 },
               ),
@@ -204,6 +206,10 @@ class _TimePickerField extends StatelessWidget {
         final time = await showTimePicker(
           context: context,
           initialTime: TimeOfDay.now(),
+          helpText: "انتخاب ساعت",
+          cancelText: "لغو",
+          confirmText: "تایید",
+          initialEntryMode: TimePickerEntryMode.dialOnly,
           builder: (context, child) {
             return MediaQuery(
               data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),

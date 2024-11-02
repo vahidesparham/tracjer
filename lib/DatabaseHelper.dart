@@ -124,7 +124,7 @@ class DatabaseHelper {
       await db.insert('locations', {
         ...location,
         'geofence_id': geofenceId,
-        'isSync': true,
+        'isSync': false,
         'stop_time': 0,
       });
     }else{

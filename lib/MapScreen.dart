@@ -58,7 +58,13 @@ class _MapScreenState extends State<MapScreen> {
     List<Map<String, dynamic>> locations = await dbHelper.getAllLocations();
     setState(() {
       if (locations.isNotEmpty) {
-        initialPosition = LatLng(locations.first['latitude'], locations.first['longitude']);
+          initialPosition = LatLng(locations.last['latitude'], locations.last['longitude']);
+          setState(() {
+            _mapController.move(
+              LatLng(initialPosition.latitude, initialPosition.longitude),
+              13.0, // میزان زوم
+            );
+          });
       }
       _allLocations = locations;
       _geofenceCircles = geofences.map((geofence) {
@@ -274,15 +280,15 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       appBar: AppBar(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-              icon: Icon(Icons.filter_list),
+              icon:
+        Image.asset("assets/images/png/filter.png",
+            fit: BoxFit.fitHeight),
               onPressed: () => showTimeAndDateRangeFilter(context),
             ),
             Text('Map with Geofences', style: TextStyle(fontSize: 18)),
@@ -303,7 +309,7 @@ class _MapScreenState extends State<MapScreen> {
           center: initialPosition,
           zoom: 13,
           onTap: (tapPosition, point) {
-            final textToCopy = 'lat: ${point.latitude}, lon: ${point
+            final textToCopy = '${point.latitude},${point
                 .longitude}';
             Clipboard.setData(ClipboardData(text: textToCopy)).then((_) {
               ScaffoldMessenger.of(context).showSnackBar(
