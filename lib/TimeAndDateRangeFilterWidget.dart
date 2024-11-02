@@ -197,6 +197,7 @@ class _TimePickerField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+
       controller: controller,
       readOnly: true,
       onTap: () async {
@@ -215,6 +216,7 @@ class _TimePickerField extends StatelessWidget {
         }
       },
       decoration: InputDecoration(
+
         labelText: labelText,
         prefixIcon: Icon(Icons.access_time),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),

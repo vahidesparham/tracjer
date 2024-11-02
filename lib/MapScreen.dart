@@ -6,6 +6,7 @@ import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 import 'TimeAndDateRangeFilterWidget.dart';
 import 'DatabaseHelper.dart';
 import 'package:intl/intl.dart';
+import 'package:geolocator/geolocator.dart';
 
 class MapScreen extends StatefulWidget {
   late  List<LatLng> points;
@@ -16,6 +17,7 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   LatLng initialPosition = LatLng(35.6892, 51.3890);
+  final MapController _mapController = MapController();
 
   List<Marker> _locationMarkers = [];
   List<CircleMarker> _geofenceCircles = [];
@@ -33,7 +35,22 @@ class _MapScreenState extends State<MapScreen> {
     super.initState();
     _loadLocationsAndGeofences();
   }
+  Future<void> _goToCurrentLocation() async {
+    LocationPermission permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      // پیغام خطا یا درخواست دوباره دسترسی
+      return;
+    }
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
 
+    setState(() {
+      _mapController.move(
+        LatLng(position.latitude, position.longitude),
+        16.0, // میزان زوم
+      );
+    });
+  }
   Future<void> _loadLocationsAndGeofences() async {
     final dbHelper = DatabaseHelper(
         interval: 10, minDistance: 10, stopTime: 10);
@@ -281,6 +298,7 @@ class _MapScreenState extends State<MapScreen> {
       ),
 
       body: FlutterMap(
+        mapController: _mapController,
         options: MapOptions(
           center: initialPosition,
           zoom: 13,
@@ -312,6 +330,17 @@ class _MapScreenState extends State<MapScreen> {
           MarkerLayer(markers: _locationMarkers),
           MarkerLayer(markers: _geofenceStopMarkers),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _goToCurrentLocation,
+        backgroundColor: Colors.white, // پس‌زمینه سفید، مشابه دکمه گوگل
+        shape: CircleBorder(), // شکل دایره‌ای
+        child: Icon(
+          Icons.my_location,
+          color: Colors.blue, // رنگ آیکون آبی
+          size: 28, // اندازه آیکون کمی بزرگ‌تر
+        ),
+        elevation: 5, // ایجاد سایه برای شبیه‌تر شدن به دکمه گوگل
       ),
 
     );
