@@ -65,7 +65,6 @@ class DatabaseHelper {
   Future<int> insertLocation(Map<String, dynamic> location) async {
     final db = await database;
 
-    // دریافت آخرین نقطه ثبت شده
     List<Map<String, dynamic>> lastLocations = await db.query(
       'locations',
       orderBy: 'timestamp DESC',
@@ -75,7 +74,6 @@ class DatabaseHelper {
     if (lastLocations.isNotEmpty) {
       Map<String, dynamic> lastLocation = lastLocations.first;
 
-      // بررسی اینکه آیا آخرین نقطه در یک geofence قرار دارد
      lastGeofence = await _checkGeofence(lastLocation);
      newGeofence = await _checkGeofence(location);
 
@@ -120,7 +118,6 @@ class DatabaseHelper {
     }
     }
 
-    // درج مکان جدید اگر نقطه قبلی در geofence نبود
     Map<String, dynamic>?   geofence = await  _checkGeofence(location);
     if(geofence==null){
       int? geofenceId=geofence?['id'];
