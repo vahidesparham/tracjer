@@ -50,11 +50,11 @@ flutter:
   fonts:
       - family: Bold
         fonts:
-          - asset: assets/fonts/IRANSansXFaNum-Bold.ttf
+          - asset: assets/fonts/iran_sans_bold.ttf
             weight: 700
       - family: regular
         fonts:
-          - asset: assets/fonts/IRANSansXFaNum-Regular.ttf
+          - asset: assets/fonts/iran_sans_regular.ttf
             weight: 500
   plugin:
     platforms:

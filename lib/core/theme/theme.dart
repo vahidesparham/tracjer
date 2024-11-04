@@ -5,6 +5,7 @@ class AppTheme {
   static final defaultTheme = ThemeData(
     primarySwatch: Colors.blue,
     brightness: Brightness.light,
+
     textTheme: TextTheme(
       titleLarge: TextStyle(
         fontFamily: 'Bold',

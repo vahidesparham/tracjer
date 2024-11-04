@@ -13,8 +13,8 @@ class Strings {
   static var select_date = "انتخاب تاریخ";
   static var select_time = "انتخاب ساعت";
 
-  static var enter_time = " :زمان ورود";
-  static var exite_time = " :زمان خروج";
+  static var enter_time = " :ساعت ورود";
+  static var exite_time = " :ساعت خروج";
 
   static var stop_time = " :مدت زمان توقف";
 

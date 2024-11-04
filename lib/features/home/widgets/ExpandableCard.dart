@@ -28,7 +28,7 @@ class ExpandableCard extends StatefulWidget {
       isScrollControlled: true,
 
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all( Radius.circular(16)),
+        borderRadius: BorderRadius.only(topLeft:  Radius.circular(16),topRight: Radius.circular(16)),
       ),
       builder: (BuildContext context) {
         return ExpandableCard(

@@ -44,7 +44,7 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
               ),
               Text(
                 Strings.filter_by_time,
-                style:Theme.of(context).textTheme.titleLarge ,
+                style:Theme.of(context).textTheme.bodyMedium ,
 
               ),
             ],
@@ -80,7 +80,7 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
                       child:
                       Text(
                         Strings.accept,
-                        style:Theme.of(context).textTheme.bodyMedium!.copyWith(color: ColorSys.black_color_light) ,
+                        style:Theme.of(context).textTheme.bodyMedium!.copyWith(color: ColorSys.white_text_color_light) ,
                     ),
 
                     )
