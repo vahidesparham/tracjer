@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:locations/DatabaseHelper.dart';
+import 'package:locations/features/home/data/DatabaseHelper.dart';
 class DatabaseTestScreen extends StatefulWidget {
   @override
   _DatabaseTestScreenState createState() => _DatabaseTestScreenState();

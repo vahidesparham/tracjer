@@ -15,6 +15,7 @@ dependencies:
   web: ^0.5.1
   plugin_platform_interface: ^2.0.2
   persian_datetime_picker: ^2.0.0
+  url_launcher: ^6.0.20
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -25,7 +26,7 @@ dev_dependencies:
   latlong2: ^0.8.1
   intl: ^0.18.1
   geolocator: ^10.0.1
-
+  url_launcher: ^6.0.20
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -48,30 +49,14 @@ flutter:
     - assets/images/
     - assets/fonts/
   fonts:
-    - family: regular
-      fonts:
-        - asset: assets/fonts/vazirmatn.ttf
-          weight: 600
-
-    - family: bold
-      fonts:
-        - asset: assets/fonts/BTitrBold.ttf
-          weight: 700
-
-    - family: light
-      fonts:
-        - asset: assets/fonts/vazirmatn.ttf
-          weight: 600
-
-    - family: body
-      fonts:
-        - asset: assets/fonts/vazirmatn.ttf
-          weight: 300
-
-    - family: bold_yekan
-      fonts:
-        - asset: assets/fonts/BYekanBold.ttf
-          weight: 800
+      - family: Bold
+        fonts:
+          - asset: assets/fonts/IRANSansXFaNum-Bold.ttf
+            weight: 700
+      - family: regular
+        fonts:
+          - asset: assets/fonts/IRANSansXFaNum-Regular.ttf
+            weight: 500
   plugin:
     platforms:
       android:

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:locations/core/values/Strings.dart';
+import 'package:locations/core/values/colors.dart';
 import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 class TimeAndDateRangeFilterWidget extends StatelessWidget {
@@ -28,7 +30,7 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -41,8 +43,9 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
                 onPressed: onCancel,
               ),
               Text(
-                'فیلتر براساس بازه زمانی',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                Strings.filter_by_time,
+                style:Theme.of(context).textTheme.titleLarge ,
+
               ),
             ],
           ),
@@ -52,8 +55,8 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              ElevatedButton(
-                onPressed: () {
+              GestureDetector(
+                onTap: () {
                   if (fromTime != null && toTime != null && fromDate != null && toDate != null) {
                     final startDateTime = fromDate!.toDateTime().add(
                       Duration(hours: fromTime!.hour, minutes: fromTime!.minute),
@@ -64,12 +67,49 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
                     onConfirm(startDateTime, endDateTime);
                   }
                 },
-                child: Text('تایید'),
+                child:
+                Container(
+                    decoration: BoxDecoration(
+                      color: ColorSys.blue_color_light,
+                      borderRadius: BorderRadius.circular(10), // مقدار گردی گوشه‌ها
+                    ),
+                    width: 80,
+                    height: 50,
+                    child:
+                    Center(
+                      child:
+                      Text(
+                        Strings.accept,
+                        style:Theme.of(context).textTheme.bodyMedium!.copyWith(color: ColorSys.black_color_light) ,
+                    ),
+
+                    )
+                ),
               ),
-              SizedBox(width: 20),
-              OutlinedButton(
-                onPressed: onCancel,
-                child: Text('انصراف'),
+              SizedBox(width: 10),
+              GestureDetector(
+                onTap: () {
+                  onCancel();
+                },
+                child:
+                Container(
+                    decoration:
+                    BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.grey,width: 1),
+                        ),
+                    width: 73,
+                    height: 50,
+                    child:
+                    Center(
+                      child:
+                      Text(
+                       Strings.cancel,
+                        style:Theme.of(context).textTheme.bodyMedium ,
+                      ),
+
+                    )
+                ),
               ),
             ],
           ),
@@ -85,59 +125,102 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
 
-            Expanded(
-              child: _TimePickerField(
 
-                controller: fromTimeController,
-                labelText: 'ساعت',
-                onTimePicked: (pickedTime) {
-                  fromTime = pickedTime;
-                  fromTimeController.text = _formatTimeOfDay(pickedTime);
-                },
-              ),
+
+            Expanded(
+                child:
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(Strings.time,
+                      style:Theme.of(context).textTheme.bodyMedium ,
+                    ),
+                    _TimePickerField(
+                      controller: fromTimeController,
+                      onTimePicked: (pickedTime) {
+                        fromTime = pickedTime;
+                        fromTimeController.text = _formatTimeOfDay(pickedTime);
+                      },
+                    ),
+                  ],
+                )
+
             ),
 
             SizedBox(width: 16),
-            Expanded(
-              child: _DatePickerField(
-                controller: fromDateController,
-                labelText: 'از تاریخ',
-                onDatePicked: (pickedDate) {
-                  fromDate = pickedDate;
-                  fromDateController.text = pickedDate.formatCompactDate();
-                },
-              ),
-            ),
+                Expanded(
+                  child:
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                       Text(Strings.frome_date,
+                    style:Theme.of(context).textTheme.bodyMedium ,
+                       ),
+                      _DatePickerField(
+                        controller: fromDateController,
+                        onDatePicked: (pickedDate) {
+                          fromDate = pickedDate;
+                          fromDateController.text = pickedDate.formatCompactDate();
+                        },
+                      ),
+                    ],
+                  )
+
+                ),
           ],
         ),
         SizedBox(height: 16),
+
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: _TimePickerField(
-                controller: toTimeController,
-                labelText: 'ساعت',
-                onTimePicked: (pickedTime) {
-                  toTime = pickedTime;
-                  String time=_formatTimeOfDay(pickedTime);
-                  toTimeController.text = _formatTimeOfDay(pickedTime);
-                },
-              ),
+              child:
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+
+                Text(Strings.time,
+                  style:Theme.of(context).textTheme.bodyMedium ,
+
+                ),
+                _TimePickerField(
+                  controller: toTimeController,
+                  onTimePicked: (pickedTime) {
+                    toTime = pickedTime;
+                    String time=_formatTimeOfDay(pickedTime);
+                    toTimeController.text = _formatTimeOfDay(pickedTime);
+                  },
+                ),
+              ],
+              )
+
             ),
             SizedBox(width: 16),
-
             Expanded(
-              child: _DatePickerField(
-                controller: toDateController,
-                labelText: 'تا تاریخ',
-                onDatePicked: (pickedDate) {
-                  toDate = pickedDate;
-                  toDateController.text = pickedDate.formatCompactDate();
-                },
-              ),
-            ),
+              child:
+              Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
+    children: [
+      Text(Strings.to_date,
+        style:Theme.of(context).textTheme.bodyMedium ,
 
+      ),
+      _DatePickerField(
+        controller: toDateController,
+        onDatePicked: (pickedDate) {
+          toDate = pickedDate;
+          toDateController.text = pickedDate.formatCompactDate();
+        },
+      ),
+    ],
+    )
+
+            ),
           ],
         ),
       ],
@@ -151,12 +234,10 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
 
 class _DatePickerField extends StatelessWidget {
   final TextEditingController controller;
-  final String labelText;
   final Function(Jalali) onDatePicked;
 
   const _DatePickerField({
     required this.controller,
-    required this.labelText,
     required this.onDatePicked,
   });
 
@@ -177,7 +258,6 @@ class _DatePickerField extends StatelessWidget {
         }
       },
       decoration: InputDecoration(
-        labelText: labelText,
         prefixIcon: Icon(Icons.date_range),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       ),
@@ -187,12 +267,10 @@ class _DatePickerField extends StatelessWidget {
 
 class _TimePickerField extends StatelessWidget {
   final TextEditingController controller;
-  final String labelText;
   final Function(TimeOfDay) onTimePicked;
 
   const _TimePickerField({
     required this.controller,
-    required this.labelText,
     required this.onTimePicked,
   });
 
@@ -206,9 +284,9 @@ class _TimePickerField extends StatelessWidget {
         final time = await showTimePicker(
           context: context,
           initialTime: TimeOfDay.now(),
-          helpText: "انتخاب ساعت",
-          cancelText: "لغو",
-          confirmText: "تایید",
+          helpText: Strings.select_time,
+          cancelText: Strings.cancel,
+          confirmText: Strings.accept,
           initialEntryMode: TimePickerEntryMode.dialOnly,
           builder: (context, child) {
             return MediaQuery(
@@ -222,8 +300,6 @@ class _TimePickerField extends StatelessWidget {
         }
       },
       decoration: InputDecoration(
-
-        labelText: labelText,
         prefixIcon: Icon(Icons.access_time),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:locations/MapScreen.dart';
-import 'DatabaseTestScreen.dart';
+import 'package:locations/features/home/presentation/MapScreen.dart';
+
+import '../../database/presentation/DatabaseTestScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
