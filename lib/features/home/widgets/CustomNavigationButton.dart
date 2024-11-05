@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/values/Strings.dart';
 import '../../../core/values/colors.dart';
+import 'package:flutter_svg/svg.dart';
 
 class CustomNavigationButton extends StatefulWidget {
   final String lat;
@@ -41,12 +42,14 @@ class _CustomNavigationButtonState extends State<CustomNavigationButton> {
             children: [
               Text(
                 Strings.navigation,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: ColorSys.white_text_color_light),
+                style: Theme.of(context).textTheme.labelMedium?.
+                copyWith(color: ColorSys.white_text_color_light),
               ),
               SizedBox(width: 8.0),
-              Image.asset(
-                "assets/images/png/navigation.png",
-                fit: BoxFit.fill,
+              Container(
+                child: SvgPicture.asset(
+                  "assets/images/svg/navigation.svg",
+                ),
               ),
             ],
           ),

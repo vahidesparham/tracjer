@@ -68,7 +68,6 @@ class DatabaseHelper {
 
   Future<int> insertLocation(Map<String, dynamic> location) async {
     final db = await database;
-
     List<Map<String, dynamic>> lastLocations = await db.query(
       'locations',
       orderBy: 'timestamp DESC',

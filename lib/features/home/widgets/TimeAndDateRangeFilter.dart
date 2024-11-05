@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:locations/core/values/Strings.dart';
 import 'package:locations/core/values/colors.dart';
 import 'package:persian_datetime_picker/persian_datetime_picker.dart';
+import 'package:flutter_svg/svg.dart';
 
 class TimeAndDateRangeFilterWidget extends StatelessWidget {
   final VoidCallback onCancel;
@@ -29,8 +30,12 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+        color: ColorSys.white_text_color_light,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border.all(
+          color: ColorSys.divider_border_color_light, // رنگ بوردر
+          width: 2.0,        // ضخامت بوردر
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -44,7 +49,7 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
               ),
               Text(
                 Strings.filter_by_time,
-                style:Theme.of(context).textTheme.bodyMedium ,
+                style:Theme.of(context).textTheme.titleMedium ,
 
               ),
             ],
@@ -80,7 +85,7 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
                       child:
                       Text(
                         Strings.accept,
-                        style:Theme.of(context).textTheme.bodyMedium!.copyWith(color: ColorSys.white_text_color_light) ,
+                        style:Theme.of(context).textTheme.labelMedium!.copyWith(color: ColorSys.white_text_color_light) ,
                     ),
 
                     )
@@ -96,7 +101,7 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
                     decoration:
                     BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.grey,width: 1),
+                        border: Border.all(color: ColorSys.divider_border_color_light,width: 1),
                         ),
                     width: 73,
                     height: 50,
@@ -105,7 +110,7 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
                       child:
                       Text(
                        Strings.cancel,
-                        style:Theme.of(context).textTheme.bodyMedium ,
+                        style:Theme.of(context).textTheme.labelMedium ,
                       ),
 
                     )
@@ -124,9 +129,6 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-
-
-
             Expanded(
                 child:
                 Column(
@@ -134,8 +136,9 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(Strings.time,
-                      style:Theme.of(context).textTheme.bodyMedium ,
+                      style:Theme.of(context).textTheme.titleMedium ,
                     ),
+                    SizedBox(height: 4,),
                     _TimePickerField(
                       controller: fromTimeController,
                       onTimePicked: (pickedTime) {
@@ -156,8 +159,9 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                        Text(Strings.frome_date,
-                    style:Theme.of(context).textTheme.bodyMedium ,
+                    style:Theme.of(context).textTheme.titleMedium ,
                        ),
+                      SizedBox(height: 4,),
                       _DatePickerField(
                         controller: fromDateController,
                         onDatePicked: (pickedDate) {
@@ -184,9 +188,10 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
               children: [
 
                 Text(Strings.time,
-                  style:Theme.of(context).textTheme.bodyMedium ,
+                  style:Theme.of(context).textTheme.titleMedium ,
 
                 ),
+                SizedBox(height: 4,),
                 _TimePickerField(
                   controller: toTimeController,
                   onTimePicked: (pickedTime) {
@@ -207,9 +212,10 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
     children: [
       Text(Strings.to_date,
-        style:Theme.of(context).textTheme.bodyMedium ,
+        style:Theme.of(context).textTheme.titleMedium ,
 
       ),
+      SizedBox(height: 4,),
       _DatePickerField(
         controller: toDateController,
         onDatePicked: (pickedDate) {
@@ -258,8 +264,18 @@ class _DatePickerField extends StatelessWidget {
         }
       },
       decoration: InputDecoration(
-        prefixIcon: Icon(Icons.date_range),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        prefixIcon:  Container(
+
+          padding: EdgeInsets.all(10),
+          child: SvgPicture.asset(
+            "assets/images/svg/date.svg",
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: ColorSys.divider_border_color_light, width: 1.0), // رنگ بوردر در حالت غیرفعال
+        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -277,7 +293,6 @@ class _TimePickerField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-
       controller: controller,
       readOnly: true,
       onTap: () async {
@@ -300,9 +315,20 @@ class _TimePickerField extends StatelessWidget {
         }
       },
       decoration: InputDecoration(
-        prefixIcon: Icon(Icons.access_time),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-      ),
+        prefixIcon:  Container(
+          padding: EdgeInsets.all(10),
+          child: SvgPicture.asset(
+            "assets/images/svg/time.svg",
+          ),
+        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: ColorSys.divider_border_color_light, width: 1.0), // رنگ بوردر در حالت غیرفعال
+        ),
+              ),
+
+
     );
   }
 }

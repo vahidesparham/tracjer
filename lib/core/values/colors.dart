@@ -7,4 +7,8 @@ class ColorSys {
   static Color red_color_light = Color(0xFFEF4444);
   static Color green_color_light = Color(0xFF22C55E);
   static Color gray_color_light = Color(0xFF84848C);
+  static Color divider_border_color_light = Color(0xFFE6E6E7);
+  static Color title_color_light = Color(0xFF262626);
+  static Color title_color_normal_light = Color(0xFF252527);
+
 }

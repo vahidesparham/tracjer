@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -9,15 +10,17 @@ import '../../../core/functions/functions.dart';
 import '../data/DatabaseHelper.dart';
 import '../widgets/CustomTooltip.dart';
 import '../widgets/ExpandableCard.dart';
-import '../widgets/TimeAndDateRangeFilterWidget.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
-import '../widgets/appbar_map.dart';
+import '../widgets/TimeAndDateRangeFilter.dart';
+import 'package:flutter_svg/svg.dart';
+import '../widgets/appbarMap.dart';
 class MapScreen extends StatefulWidget {
   late List<LatLng> points;
   @override
   _MapScreenState createState() => _MapScreenState();
 }
+
 class _MapScreenState extends State<MapScreen> {
   LatLng initialPosition = LatLng(35.6892, 51.3890);
   final MapController _mapController = MapController();
@@ -28,6 +31,7 @@ class _MapScreenState extends State<MapScreen> {
   DateTime? _startTime;
   DateTime? _endTime;
   List<Map<String, dynamic>> allLocations = [];
+
   @override
   void initState() {
     super.initState();
@@ -54,7 +58,7 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<void> _loadLocationsAndGeofences() async {
     final dbHelper =
-    DatabaseHelper(interval: 10, minDistance: 10, stopTime: 10);
+        DatabaseHelper(interval: 10, minDistance: 10, stopTime: 10);
     List<Map<String, dynamic>> geofences = await dbHelper.getAllGeofences();
     List<Map<String, dynamic>> locations = await dbHelper.getAllLocations();
     setState(() {
@@ -111,28 +115,29 @@ class _MapScreenState extends State<MapScreen> {
             point: LatLng(geofence['latitude'], geofence['longitude']),
             builder: (ctx) {
               List<Map<String, dynamic>> stopPointsInGeofence =
-              getPointsInGeofence(context, geofence,allLocations);
+                  getPointsInGeofence(context, geofence, allLocations);
               List<Map<String, dynamic>> stopPointsOutOfGeofence =
-              getPointsOutOfGeofence(context, geofence,allLocations);
+                  getPointsOutOfGeofence(context, geofence, allLocations);
 
               return GestureDetector(
                 onTap: () {
-                  ExpandableCard.showAsBottomSheet(context, geofence,allLocations);
+                  // ExpandableCard.showAsBottomSheet(context, geofence,allLocations);
+                  showExpandableCardDialog(context, geofence, allLocations);
                 },
                 child: stopPointsInGeofence.isNotEmpty
                     ? Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: ColorSys.yellow_color_light,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.pause,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                )
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: ColorSys.yellow_color_light,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.pause,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      )
                     : SizedBox.shrink(),
               );
             },
@@ -152,7 +157,6 @@ class _MapScreenState extends State<MapScreen> {
     _locationMarkers = _polylinePoints.asMap().entries.map((entry) {
       int idx = entry.key;
       LatLng point = entry.value;
-
 
       return Marker(
         point: point,
@@ -228,45 +232,42 @@ class _MapScreenState extends State<MapScreen> {
               message: hasStop
                   ? "$formattedStopTime"
                   : idx == 0
-                  ? "شروع مسیر"
-                  : idx == _polylinePoints.length - 1
-                  ? "پایان مسیر"
-                  : "مارکر #$idx",
+                      ? "شروع مسیر"
+                      : idx == _polylinePoints.length - 1
+                          ? "پایان مسیر"
+                          : "مارکر #$idx",
               child: allLocations[idx].containsKey('stop_time') &&
-                  allLocations[idx]['stop_time'] > 0
+                      allLocations[idx]['stop_time'] > 0
                   ? Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: ColorSys.yellow_color_light,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.pause,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              )
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: ColorSys.yellow_color_light,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.pause,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    )
                   : idx == 0
-                  ? Image.asset(
-                width: 16,
-                height: 16,
-                "assets/images/png/start.png",
-                fit: BoxFit.fill,
-              )
-                  : idx == _polylinePoints.length - 1
-                  ? Image.asset(
-                width: 16,
-                height: 16,
-                "assets/images/png/end.png",
-                fit: BoxFit.fill,
-              )
-                  : SizedBox.shrink(),
+                      ? Container(
+                          child: SvgPicture.asset(
+                            "assets/images/svg/start.svg",
+                          ),
+                        )
+                      : idx == _polylinePoints.length - 1
+                          ? Container(
+                              child: SvgPicture.asset(
+                                "assets/images/svg/end.svg",
+                              ),
+                            )
+                          : SizedBox.shrink(),
             ),
           );
         },
       );
-
     }).toList();
   }
 
@@ -291,7 +292,7 @@ class _MapScreenState extends State<MapScreen> {
               });
 
               List<Map<String, dynamic>> filteredLocations =
-              allLocations.where((location) {
+                  allLocations.where((location) {
                 DateTime locationTime = DateTime.parse(location['timestamp']);
                 return locationTime.isAfter(startDateTime) &&
                     locationTime.isBefore(endDateTime);
@@ -360,4 +361,5 @@ class _MapScreenState extends State<MapScreen> {
       ),
     );
   }
+
 }

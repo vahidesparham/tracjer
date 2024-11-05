@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+
 class appbar_map extends StatelessWidget implements PreferredSizeWidget {
   late final double height;
   late final String title;
@@ -18,9 +20,11 @@ class appbar_map extends StatelessWidget implements PreferredSizeWidget {
               child: Container(
                 alignment: Alignment.bottomLeft,
                 child: IconButton(
-                    icon: Image.asset(
-                      "assets/images/png/filter.png",
-                      fit: BoxFit.fitHeight,
+                    icon:
+                    Container(
+                      child: SvgPicture.asset(
+                        "assets/images/svg/filter.svg",
+                      ),
                     ),
                     onPressed: () {
                       action();
@@ -29,12 +33,12 @@ class appbar_map extends StatelessWidget implements PreferredSizeWidget {
             ),
             Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge
+              style: Theme.of(context).textTheme.headlineLarge
             ),
             IconButton(
               icon: Icon(Icons.arrow_forward),
               onPressed: () {
-                Navigator.of(context).pop();
+                //Navigator.of(context).pop();
               },
             ),
           ],

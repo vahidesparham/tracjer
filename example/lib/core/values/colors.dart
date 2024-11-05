@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 class ColorSys {
-  static Color primary_dark = Color(0xFF191919);
-  static Color scaffold_background_dark = Color(0xFF262626);
-  static Color primary_divider_dark = Color(0xFF3D3D3D);
-  static Color primary_accent_dark = Color(0xFFFBC531);
-  static Color primary_hint_dark = Color(0xFFFFFFFF);
+  static Color black_color_light = Color(0xFF000000);
+  static Color blue_color_light = Color(0xFF154A65);
+  static Color white_text_color_light = Color(0xFFFFFFFF);
+  static Color yellow_color_light = Color(0xFFFB8A3C);
+  static Color red_color_light = Color(0xFFEF4444);
+  static Color green_color_light = Color(0xFF22C55E);
+  static Color gray_color_light = Color(0xFF84848C);
+  static Color title_color_light = Color(0xFF262626);
+  static Color title_color_normal_light = Color(0xFF252527);
 
-  static Color text_title_color_lighte = Color(0xFF000000);
 }

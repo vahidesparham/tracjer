@@ -5,8 +5,6 @@ class DatabaseTestScreen extends StatefulWidget {
   _DatabaseTestScreenState createState() => _DatabaseTestScreenState();
 }
 class _DatabaseTestScreenState extends State<DatabaseTestScreen> {
-
-
   void initState() {
     super.initState();
     _getGeofences();

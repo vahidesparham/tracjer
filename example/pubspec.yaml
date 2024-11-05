@@ -45,6 +45,8 @@ dev_dependencies:
   flutter_map: ^4.0.0
   latlong2: ^0.8.1
   geolocator: ^9.0.0  # به جای نسخه خودتان مقدار مناسب را وارد کنید
+  flutter_svg: ^2.0.5
+  http: ^0.13.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -56,6 +58,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
+    - assets/images/svg/
     - assets/images/png/
     - assets/images/
     - assets/fonts/
@@ -67,6 +70,11 @@ flutter:
     - family: regular
       fonts:
         - asset: assets/fonts/iran_sans_regular.ttf
+          weight: 500
+
+    - family: normal
+      fonts:
+        - asset: assets/fonts/iran_sans_normal.ttf
           weight: 500
   # To add assets to your application, add an assets section, like this:
   # assets:
