@@ -33,19 +33,24 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
         color: ColorSys.white_text_color_light,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         border: Border.all(
-          color: ColorSys.divider_border_color_light, // رنگ بوردر
-          width: 2.0,        // ضخامت بوردر
+          color: ColorSys.divider_border_color_light,
+          width: 2.0,
         ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          Container(
+          child:
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(
-                icon: Icon(Icons.close),
-                onPressed: onCancel,
+              Container(
+                child: SvgPicture.asset(
+                  "assets/images/svg/close.svg",
+                ),
+                height: 24,
+                width: 24,
               ),
               Text(
                 Strings.filter_by_time,
@@ -54,9 +59,10 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
               ),
             ],
           ),
+          ),
           SizedBox(height: 16),
           _buildDateTimeFields(context),
-          SizedBox(height: 24),
+          SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -91,7 +97,7 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
                     )
                 ),
               ),
-              SizedBox(width: 10),
+              SizedBox(width: 8),
               GestureDetector(
                 onTap: () {
                   onCancel();
@@ -151,7 +157,7 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
 
             ),
 
-            SizedBox(width: 16),
+            SizedBox(width: 8),
                 Expanded(
                   child:
                   Column(
@@ -204,7 +210,7 @@ class TimeAndDateRangeFilterWidget extends StatelessWidget {
               )
 
             ),
-            SizedBox(width: 16),
+            SizedBox(width: 8),
             Expanded(
               child:
               Column(
@@ -315,7 +321,8 @@ class _TimePickerField extends StatelessWidget {
         }
       },
       decoration: InputDecoration(
-        prefixIcon:  Container(
+        prefixIcon:
+        Container(
           padding: EdgeInsets.all(10),
           child: SvgPicture.asset(
             "assets/images/svg/time.svg",
